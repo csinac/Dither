@@ -13,7 +13,7 @@ PImage reduceColors(PImage src, int n) {
     }
   }
 
-  float[][] clusters = cluster(rgbArray, n);
+  float[][] clusters = cluster(rgbArray, n, 3);
   for (int y = 0; y < src.height; y++) {
     for (int x = 0; x < src.width; x++) {
       int c = img.get(x, y);
@@ -52,7 +52,7 @@ color[] reducedPalette(PImage src, int count) {
     }
   }
 
-  float[][] clusters = cluster(rgbArray, count);
+  float[][] clusters = cluster(rgbArray, count, 3);
   color[] reduced = new color[count];
   for(int i = 0; i < count; i++) {
     reduced[i] = color(clusters[i][0], clusters[i][1], clusters[i][2]);
@@ -61,29 +61,32 @@ color[] reducedPalette(PImage src, int count) {
   return reduced;
 }
 
-float[][] cluster(float[][] rgbArray, int count) {
-  float[][] dominantColours = new float[count][3];
+float[][] cluster(float[][] array, int count, int dim) {
+  float[][] dominantColours = new float[count][dim];
   
   for (int i = 0; i < count; i++) {
-    int r = (int) random(rgbArray.length);
-    dominantColours[i][0] = rgbArray[r][0];
-    dominantColours[i][1] = rgbArray[r][1];
-    dominantColours[i][2] = rgbArray[r][2];
+    int r = (int) random(array.length);
+    for(int j = 0; j < dim; j++)
+      dominantColours[i][j] = array[r][j];
   }
 
   boolean converged = false;
   for (int f = 0; f < 99 && !converged; f++) {
-    //println(f);
-    int[] assignments = new int[rgbArray.length];
-    for (int i = 0; i < rgbArray.length; i++) {
-      int r = (int) rgbArray[i][0];
-      int g = (int) rgbArray[i][1];
-      int b = (int) rgbArray[i][2];
+    int[] assignments = new int[array.length];
+    
+    for (int i = 0; i < array.length; i++) {
+      int[] values = new int[dim];
+      for (int j = 0; j < dim; j++)
+        values[j] = (int) array[i][j];
       
       int closestColorIndex = 0;
       float minDist = Float.MAX_VALUE;
       for (int j = 0; j < dominantColours.length; j++) {
-        float distance = dist(r, g, b, dominantColours[j][0], dominantColours[j][1], dominantColours[j][2]);
+        float distance = 0;
+        for(int k = 0; k < dim; k++)
+          distance += pow(values[0] - dominantColours[j][k], 2);  
+        distance = sqrt(distance);
+
         if (distance < minDist) {
           closestColorIndex = j;
           minDist = distance;
@@ -93,37 +96,36 @@ float[][] cluster(float[][] rgbArray, int count) {
       assignments[i] = closestColorIndex;
     }
     
-    float[][] clusterMean = new float[count][3];
+    float[][] clusterMean = new float[count][dim];
     int[] clusterSizes = new int[count];
     
-    for (int i = 0; i < rgbArray.length; i++) {
+    for (int i = 0; i < array.length; i++) {
       int closestIndex = assignments[i];
       
-      clusterMean[closestIndex][0] += rgbArray[i][0];
-      clusterMean[closestIndex][1] += rgbArray[i][1];
-      clusterMean[closestIndex][2] += rgbArray[i][2];
+      for (int j = 0; j < dim; j++)
+        clusterMean[closestIndex][j] += array[i][j];
+
       clusterSizes[closestIndex]++;
     }
     
     for (int i = 0; i < count; i++) {
-      clusterMean[i][0] /= clusterSizes[i];
-      clusterMean[i][1] /= clusterSizes[i];
-      clusterMean[i][2] /= clusterSizes[i];
+      for (int j = 0; j < dim; j++)
+        clusterMean[i][j] /= clusterSizes[i];
     }
     
     converged = true;
     
-    for (int i = 0; i < count; i++) {
-      if (abs(dominantColours[i][0] - clusterMean[i][0]) > 1 ||
-          abs(dominantColours[i][1] - clusterMean[i][1]) > 1 ||
-          abs(dominantColours[i][2] - clusterMean[i][2]) > 1) {
-            converged = false;
-            break;
-       }
-     }
-     
-     dominantColours = clusterMean;
-   }
-   
-   return dominantColours;
- }
+    for (int i = 0; i < count && converged; i++) {
+      for (int j = 0; j < dim; j++) {
+        if (abs(dominantColours[i][j] - clusterMean[i][j]) > 1) {
+          converged = false;
+          break;
+        }
+      }
+    }
+    
+    dominantColours = clusterMean;
+  }
+  
+  return dominantColours;
+}
