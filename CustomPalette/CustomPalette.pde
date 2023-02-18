@@ -1,13 +1,3 @@
-color[] palette = {
-  color(255, 0, 0),
-  color(255, 255, 255),
-  color(0, 255, 0),
-  color(0, 0, 255),
-  color(255, 255, 0),
-  color(255, 128, 0),
-  color(0, 0, 0)
-};
-
 color[] dominantPalette;
 HSB[] dominantHS;
 color[] bwPalette;
@@ -22,7 +12,7 @@ int bwCount = 8;
 boolean init = true;
 
 void setup() {
-  img = loadImage("kelebekler.jpg");
+  img = loadImage("../shared/images/gray.jpg");
   hsbArray = getHSBArray(img);
   
   surface.setResizable(true);
@@ -45,32 +35,7 @@ void draw() {
 }
 
 void keyPressed() {
-  if (key == 'f') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, floydSteinbergKernel, fsSize);
-    background(dithered);
-  } else if (key == 's') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, stuckiKernel, sSize);
-    background(dithered);
-  } else if (key == 'j') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, jarvisJudiceNinkeKernel, jSize);
-    background(dithered);
-  } else if (key == 'i') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, sierraKernel, sierraSize);
-    background(dithered);
-  } else if (key == 'a') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, atkinsonKernel, atkinsonSize);
-    background(dithered);
-  } else if (key == ' ') {
-    background(img);
-  } else if (key == 'w') {
-    PImage dithered = kernelDither(bw, bwPalette, atkinsonKernel, atkinsonSize);
-    background(dithered);
-  } else if (key == 'o') {
-    background(img);
-  }
-
-  /*
-  if (key == 'f') {
+ if (key == 'f') {
     PImage dithered = kernelDither(img, dominantPalette, floydSteinbergKernel, fsSize);
     background(dithered);
   } else if (key == 's') {
@@ -93,5 +58,5 @@ void keyPressed() {
   } else if (key == 'o') {
     background(rgb);
   }
-  */
+  
 }
