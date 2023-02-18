@@ -47,13 +47,13 @@ color getClosest(color c, color[] palette, boolean byteColor) {
   float delta = Float.MAX_VALUE;
   
   for(int i = 0; i < palette.length; i++) {
-    float cr = red(c);
-    float cg = green(c);
-    float cb = blue(c);
-    
-    float pr = red(palette[i]);
-    float pg = green(palette[i]);
-    float pb = blue(palette[i]);
+    float cr = c >> 16 & 0xFF;
+    float cg = c >> 8 & 0xFF;
+    float cb = c & 0xFF;
+
+    float pr = palette[i] >> 16 & 0xFF;
+    float pg = palette[i] >> 8 & 0xFF;
+    float pb = palette[i] & 0xFF;
     
     float dr = cr - pr;
     float dg = cg - pg;
@@ -77,25 +77,25 @@ color getClosest(color c, color[] palette, boolean byteColor) {
 }
 
 float[] subtract(color a, color b) {
-    float ar = red(a);
-    float ag = green(a);
-    float ab = blue(a);
+    float ar = a >> 16 & 0xFF;
+    float ag = a >> 8 & 0xFF;
+    float ab = a & 0xFF;
 
-    float br = red(b);
-    float bg = green(b);
-    float bb = blue(b);
+    float br = b >> 16 & 0xFF;
+    float bg = b >> 8 & 0xFF;
+    float bb = b & 0xFF;
     
     return new float[] { ar - br, ag - bg, ab - bb };
 }
 
 color add(color a, color b) {
-    float ar = red(a);
-    float ag = green(a);
-    float ab = blue(a);
+    float ar = a >> 16 & 0xFF;
+    float ag = a >> 8 & 0xFF;
+    float ab = a & 0xFF;
 
-    float br = red(b);
-    float bg = green(b);
-    float bb = blue(b);
+    float br = b >> 16 & 0xFF;
+    float bg = b >> 8 & 0xFF;
+    float bb = b & 0xFF;
     
     float r = max(0, min(ar + br, 255));
     float g = max(0, min(ag + bg, 255));
@@ -105,9 +105,9 @@ color add(color a, color b) {
 }
 
 color add(color a, float[] b) {
-    float ar = red(a);
-    float ag = green(a);
-    float ab = blue(a);
+    float ar = a >> 16 & 0xFF;
+    float ag = a >> 8 & 0xFF;
+    float ab = a & 0xFF;
 
     float br = b[0];
     float bg = b[1];

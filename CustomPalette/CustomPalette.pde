@@ -2,9 +2,9 @@ color[] palette;
 
 PImage img;
 boolean init = true;
-boolean bw = true;
+boolean bw = false;
 KernelLoader kernelLoader;
-int colorCount = 4;
+int colorCount = 8;
 
 void setup() {
   kernelLoader = new KernelLoader("../shared/kernels.json");
