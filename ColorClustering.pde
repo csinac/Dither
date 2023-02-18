@@ -61,6 +61,25 @@ color[] reducedPalette(PImage src, int count) {
   return reduced;
 }
 
+HSB[] reducedPalette(HSB[] src, int count) {
+  float[][] array = new float[src.length][2];
+  int idx = 0;
+  
+  for (int i = 0; i < src.length; i++) {
+    array[idx][0] = (float)src[i].h;
+    array[idx][1] = (float)src[i].s;
+    idx++;
+  }
+
+  float[][] clusters = cluster(array, count, 2);
+  HSB[] reduced = new HSB[count];
+  for(int i = 0; i < count; i++) {
+    reduced[i] = new HSB(clusters[i][0], clusters[i][1], 128f);
+  }
+  
+  return reduced;
+}
+
 float[][] cluster(float[][] array, int count, int dim) {
   float[][] dominantColours = new float[count][dim];
   
@@ -84,7 +103,7 @@ float[][] cluster(float[][] array, int count, int dim) {
       for (int j = 0; j < dominantColours.length; j++) {
         float distance = 0;
         for(int k = 0; k < dim; k++)
-          distance += pow(values[0] - dominantColours[j][k], 2);  
+          distance += pow(values[k] - dominantColours[j][k], 2);  
         distance = sqrt(distance);
 
         if (distance < minDist) {

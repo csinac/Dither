@@ -9,10 +9,12 @@ color[] palette = {
 };
 
 color[] dominantPalette;
+HSB[] dominantHS;
 color[] bwPalette;
 PImage img;
 PImage bw;
 PImage rgb;
+HSB[] hsbArray;
 
 int colorCount = 8;
 int bwCount = 8;
@@ -21,14 +23,15 @@ boolean init = true;
 
 void setup() {
   img = loadImage("kelebekler.jpg");
-  HSB[] hsbArray = getHSBArray(img);
-  rgb = makeRGBImage(hsbArray, img.width, img.height);
+  hsbArray = getHSBArray(img);
   
   surface.setResizable(true);
   surface.setSize(img.width, img.height);
-
-  dominantPalette = reducedPalette(rgb, colorCount);
-  bw = blackAndWhite(rgb);
+  
+  dominantPalette = reducedPalette(img, colorCount);
+  dominantHS = reducedPalette(hsbArray, colorCount);
+  
+  bw = blackAndWhite(img);
   bwPalette = new color[bwCount];
   for (int i = 0; i < bwCount; i++)
     bwPalette[i] = color(255f * i / (bwCount - 1));
@@ -36,26 +39,51 @@ void setup() {
 
 void draw() {
   if (init) {
-    image(rgb, 0, 0);
+    image(img, 0, 0);
     init = false;
   }
 }
 
 void keyPressed() {
   if (key == 'f') {
-    PImage dithered = kernelDither(rgb, dominantPalette, floydSteinbergKernel, fsSize);
+    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, floydSteinbergKernel, fsSize);
     background(dithered);
   } else if (key == 's') {
-    PImage dithered = kernelDither(rgb, dominantPalette, stuckiKernel, sSize);
+    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, stuckiKernel, sSize);
     background(dithered);
   } else if (key == 'j') {
-    PImage dithered = kernelDither(rgb, dominantPalette, jarvisJudiceNinkeKernel, jSize);
+    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, jarvisJudiceNinkeKernel, jSize);
     background(dithered);
   } else if (key == 'i') {
-    PImage dithered = kernelDither(rgb, dominantPalette, sierraKernel, sierraSize);
+    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, sierraKernel, sierraSize);
     background(dithered);
   } else if (key == 'a') {
-    PImage dithered = kernelDither(rgb, dominantPalette, atkinsonKernel, atkinsonSize);
+    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, atkinsonKernel, atkinsonSize);
+    background(dithered);
+  } else if (key == ' ') {
+    background(img);
+  } else if (key == 'w') {
+    PImage dithered = kernelDither(bw, bwPalette, atkinsonKernel, atkinsonSize);
+    background(dithered);
+  } else if (key == 'o') {
+    background(img);
+  }
+
+  /*
+  if (key == 'f') {
+    PImage dithered = kernelDither(img, dominantPalette, floydSteinbergKernel, fsSize);
+    background(dithered);
+  } else if (key == 's') {
+    PImage dithered = kernelDither(img, dominantPalette, stuckiKernel, sSize);
+    background(dithered);
+  } else if (key == 'j') {
+    PImage dithered = kernelDither(img, dominantPalette, jarvisJudiceNinkeKernel, jSize);
+    background(dithered);
+  } else if (key == 'i') {
+    PImage dithered = kernelDither(img, dominantPalette, sierraKernel, sierraSize);
+    background(dithered);
+  } else if (key == 'a') {
+    PImage dithered = kernelDither(img, dominantPalette, atkinsonKernel, atkinsonSize);
     background(dithered);
   } else if (key == ' ') {
     background(img);
@@ -65,4 +93,5 @@ void keyPressed() {
   } else if (key == 'o') {
     background(rgb);
   }
+  */
 }

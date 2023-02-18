@@ -1,6 +1,20 @@
 class HSB {
   double h, s, b;
   
+  HSB() {}
+  
+  HSB(HSB hsb) {
+    h = hsb.h;
+    s = hsb.s;
+    b = hsb.b;
+  }
+
+  HSB(float hue, float sat, float brg) {
+    h = hue;
+    s = sat;
+    b = brg;
+  }
+  
   String toString() {
     return "H: " + h + " S: " + s + " B: " + b;
   }
