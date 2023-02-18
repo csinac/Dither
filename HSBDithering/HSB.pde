@@ -1,5 +1,5 @@
 class HSB {
-  double h, s, b;
+  float h, s, b;
   
   HSB() {}
   
@@ -59,10 +59,10 @@ HSB rgb2hsb(color c) {
     float b = blue(c);
 
     HSB out = new HSB();
-    double min = min(min(r, g), b);
-    double max = max(max(r, g), b);
+    float min = min(min(r, g), b);
+    float max = max(max(r, g), b);
     out.b = max;
-    double delta = max - min;
+    float delta = max - min;
 
     if (delta < EPSILON) {
         out.s = 0;

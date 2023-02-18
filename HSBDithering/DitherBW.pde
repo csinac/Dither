@@ -1,4 +1,4 @@
-PImage dither(HSB[] src, int w, int h, float[] palette, String method) {
+float[] dither(HSB[] src, int w, int h, float[] palette, String method) {
   Kernel kernel = kernelLoader.get(method);
 
   if(w * h != src.length)
@@ -11,7 +11,7 @@ PImage dither(HSB[] src, int w, int h, float[] palette, String method) {
 
   float[] dithered = new float[src.length];
   for(int i = 0; i < src.length; i++)
-    dithered[i] = (float)src[i].b;
+    dithered[i] = src[i].b;
   
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
@@ -42,7 +42,7 @@ PImage dither(HSB[] src, int w, int h, float[] palette, String method) {
     }
   }
   
-  return makeRGBImage(dithered, w, h);
+  return dithered;
 }
 
 float getClosest(float c, float[] palette) {

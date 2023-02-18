@@ -1,4 +1,4 @@
-PImage dither(HSB[] src, int w, int h, HSB[] palette, String method) {
+HSB[] dither(HSB[] src, int w, int h, HSB[] palette, String method) {
   Kernel kernel = kernelLoader.get(method);
 
   if(w * h != src.length)
@@ -42,7 +42,7 @@ PImage dither(HSB[] src, int w, int h, HSB[] palette, String method) {
     }
   }
   
-  return makeRGBImage(dithered, w, h);
+  return dithered;
 }
 
 HSB getClosest(HSB c, HSB[] palette) {
@@ -52,8 +52,8 @@ HSB getClosest(HSB c, HSB[] palette) {
   for(int i = 0; i < palette.length; i++) {    
     HSB p = palette[i];
     
-    float dh = (float)(c.h - p.h);
-    float ds = (float)(c.s - p.s);
+    float dh = c.h - p.h;
+    float ds = c.s - p.s;
     
     dh /= 255;
     ds /= 255;
@@ -69,13 +69,13 @@ HSB getClosest(HSB c, HSB[] palette) {
 }
 
 float[] subtract(HSB a, HSB b) {
-    return new float[] { (float)(a.h - b.h), (float)(a.s - b.s), (float)(a.b - b.b) };
+    return new float[] {a.h - b.h, a.s - b.s, a.b - b.b };
 }
 
 HSB add(HSB a, HSB b) {
-    float r = max(0, min((float)(a.h + b.h), 255));
-    float g = max(0, min((float)(a.s + b.s), 255));
-    float l = max(0, min((float)(a.b + b.b), 255));
+    float r = max(0, min(a.h + b.h, 255));
+    float g = max(0, min(a.s + b.s, 255));
+    float l = max(0, min(a.b + b.b, 255));
 
     return new HSB(r, g, l);
 }
@@ -85,9 +85,9 @@ HSB add(HSB a, float[] b) {
     float bg = b[1];
     float bb = b[2];
     
-    float r = max(0, min((float)a.h + br, 255));
-    float g = max(0, min((float)a.s + bg, 255));
-    float l = max(0, min((float)a.b + bb, 255));
+    float r = max(0, min(a.h + br, 255));
+    float g = max(0, min(a.s + bg, 255));
+    float l = max(0, min(a.b + bb, 255));
 
     return new HSB(r, g, l);
 }

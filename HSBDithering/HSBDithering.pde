@@ -4,9 +4,9 @@ PImage img;
 HSB[] hsbArray;
 
 KernelLoader kernelLoader;
-int hsCount = 16;
-int bwCount = 8;
-
+String method;
+int hsCount = 8;
+int bwCount = 4;
 
 boolean init = true;
 
@@ -19,10 +19,7 @@ void setup() {
   surface.setSize(img.width, img.height);
   
   palette = reducedHSPalette(hsbArray, hsCount);
-  bwPalette = reducedBPalette(hsbArray, bwCount);
-  
-  for(int i = 0; i < bwPalette.length; i++)
-    println(bwPalette[i]);
+  bwPalette = reducedBPalette(hsbArray, bwCount);  
 }
 
 void draw() {
@@ -32,26 +29,38 @@ void draw() {
   }
 }
 
+boolean redraw = false;
 void keyPressed() {
   if (key == 'f') {
-    PImage dithered = dither(hsbArray, img.width, img.height, palette, "FloydSteinberg");
-    background(dithered);
+    method = "FloydSteinberg";
+    redraw = true;
   } else if (key == 's') {
-    PImage dithered = dither(hsbArray, img.width, img.height, palette, "Stucki");
-    background(dithered);
+    method = "Stucki";
+    redraw = true;
   } else if (key == 'j') {
-    PImage dithered = dither(hsbArray, img.width, img.height, palette, "JarvisJudiceNinke");
-    background(dithered);
+    method = "JarvisJudiceNinke";
+    redraw = true;
   } else if (key == 'i') {
-    PImage dithered = dither(hsbArray, img.width, img.height, palette, "Sierra");
-    background(dithered);
+    method = "Sierra";
+    redraw = true;
   } else if (key == 'a') {
-    PImage dithered = dither(hsbArray, img.width, img.height, palette, "Atkinson");
-    background(dithered);
-  } else if (key == 'b') {
-    PImage dithered = dither(hsbArray, img.width, img.height, bwPalette, "Atkinson");
-    background(dithered);
+    method = "Atkinson";
+    redraw = true;
   } else if (key == 'o') {
+    background(img);
+  }
+  
+  if(redraw) {
+    redraw = false;
+    
+    HSB[] hs = dither(hsbArray, img.width, img.height, palette, method);
+    float[] b = dither(hsbArray, img.width, img.height, bwPalette, method);
+    
+    for(int i = 0; i < img.pixels.length; i++) {
+      hs[i].b = b[i];
+      img.pixels[i] = hsb2rgb(hs[i]);
+    }
+    
     background(img);
   }
 }
