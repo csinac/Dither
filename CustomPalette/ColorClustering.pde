@@ -6,9 +6,9 @@ PImage reduceColors(PImage src, int n) {
   for (int y = 0; y < src.height; y++) {
     for (int x = 0; x < src.width; x++) {
       int c = src.get(x, y);
-      rgbArray[idx][0] = red(c);
-      rgbArray[idx][1] = green(c);
-      rgbArray[idx][2] = blue(c);
+      rgbArray[idx][0] = c >> 16 & 0xFF;
+      rgbArray[idx][1] = c >> 8 & 0xFF;
+      rgbArray[idx][2] = c & 0xFF;
       idx++;
     }
   }
@@ -17,9 +17,9 @@ PImage reduceColors(PImage src, int n) {
   for (int y = 0; y < src.height; y++) {
     for (int x = 0; x < src.width; x++) {
       int c = img.get(x, y);
-      int r = (int) red(c);
-      int g = (int) green(c);
-      int b = (int) blue(c);
+      int r = c >> 16 & 0xFF;
+      int g = c >> 8 & 0xFF;
+      int b = c & 0xFF;
 
       int index = 0;
       float minDist = Float.MAX_VALUE;
@@ -45,9 +45,9 @@ color[] reducedPalette(PImage src, int count) {
   for (int y = 0; y < src.height; y++) {
     for (int x = 0; x < src.width; x++) {
       int c = src.get(x, y);
-      rgbArray[idx][0] = red(c);
-      rgbArray[idx][1] = green(c);
-      rgbArray[idx][2] = blue(c);
+      rgbArray[idx][0] = c >> 16 & 0xFF;
+      rgbArray[idx][1] = c >> 8 & 0xFF;
+      rgbArray[idx][2] = c & 0xFF;
       idx++;
     }
   }
@@ -61,24 +61,6 @@ color[] reducedPalette(PImage src, int count) {
   return reduced;
 }
 
-HSB[] reducedPalette(HSB[] src, int count) {
-  float[][] array = new float[src.length][2];
-  int idx = 0;
-  
-  for (int i = 0; i < src.length; i++) {
-    array[idx][0] = (float)src[i].h;
-    array[idx][1] = (float)src[i].s;
-    idx++;
-  }
-
-  float[][] clusters = cluster(array, count, 2);
-  HSB[] reduced = new HSB[count];
-  for(int i = 0; i < count; i++) {
-    reduced[i] = new HSB(clusters[i][0], clusters[i][1], 128f);
-  }
-  
-  return reduced;
-}
 
 float[][] cluster(float[][] array, int count, int dim) {
   float[][] dominantColours = new float[count][dim];

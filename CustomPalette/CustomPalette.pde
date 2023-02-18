@@ -1,30 +1,21 @@
-color[] dominantPalette;
-HSB[] dominantHS;
-color[] bwPalette;
+color[] palette;
+
 PImage img;
-PImage bw;
-PImage rgb;
-HSB[] hsbArray;
-
-int colorCount = 8;
-int bwCount = 8;
-
 boolean init = true;
+boolean bw = true;
+KernelLoader kernelLoader;
+int colorCount = 4;
 
 void setup() {
-  img = loadImage("../shared/images/gray.jpg");
-  hsbArray = getHSBArray(img);
+  kernelLoader = new KernelLoader("../shared/kernels.json");
+  img = loadImage("../shared/images/kelebekler.jpg");
+  if(bw)
+    img = makeBW(img);
   
   surface.setResizable(true);
   surface.setSize(img.width, img.height);
   
-  dominantPalette = reducedPalette(img, colorCount);
-  dominantHS = reducedPalette(hsbArray, colorCount);
-  
-  bw = blackAndWhite(img);
-  bwPalette = new color[bwCount];
-  for (int i = 0; i < bwCount; i++)
-    bwPalette[i] = color(255f * i / (bwCount - 1));
+  palette = reducedPalette(img, colorCount);  
 }
 
 void draw() {
@@ -35,28 +26,22 @@ void draw() {
 }
 
 void keyPressed() {
- if (key == 'f') {
-    PImage dithered = kernelDither(img, dominantPalette, floydSteinbergKernel, fsSize);
+  if (key == 'f') {
+    PImage dithered = dither(img, palette, "FloydSteinberg");
     background(dithered);
   } else if (key == 's') {
-    PImage dithered = kernelDither(img, dominantPalette, stuckiKernel, sSize);
+    PImage dithered = dither(img, palette, "Stucki");
     background(dithered);
   } else if (key == 'j') {
-    PImage dithered = kernelDither(img, dominantPalette, jarvisJudiceNinkeKernel, jSize);
+    PImage dithered = dither(img, palette, "JarvisJudiceNinke");
     background(dithered);
   } else if (key == 'i') {
-    PImage dithered = kernelDither(img, dominantPalette, sierraKernel, sierraSize);
+    PImage dithered = dither(img, palette, "Sierra");
     background(dithered);
   } else if (key == 'a') {
-    PImage dithered = kernelDither(img, dominantPalette, atkinsonKernel, atkinsonSize);
-    background(dithered);
-  } else if (key == ' ') {
-    background(img);
-  } else if (key == 'w') {
-    PImage dithered = kernelDither(bw, bwPalette, atkinsonKernel, atkinsonSize);
+    PImage dithered = dither(img, palette, "Atkinson");
     background(dithered);
   } else if (key == 'o') {
-    background(rgb);
-  }
-  
+    background(img);
+  } 
 }
