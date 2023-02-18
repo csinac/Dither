@@ -1,7 +1,6 @@
 HSB[] palette;
-color[] bwPalette;
+float[] bwPalette;
 PImage img;
-PImage bw;
 HSB[] hsbArray;
 
 KernelLoader kernelLoader;
@@ -19,12 +18,11 @@ void setup() {
   surface.setResizable(true);
   surface.setSize(img.width, img.height);
   
-  palette = reducedPalette(hsbArray, hsCount);
+  palette = reducedHSPalette(hsbArray, hsCount);
+  bwPalette = reducedBPalette(hsbArray, bwCount);
   
-  bw = makeBW(img);
-  bwPalette = new color[bwCount];
-  for (int i = 0; i < bwCount; i++)
-    bwPalette[i] = color(255f * i / (bwCount - 1));
+  for(int i = 0; i < bwPalette.length; i++)
+    println(bwPalette[i]);
 }
 
 void draw() {
@@ -49,6 +47,9 @@ void keyPressed() {
     background(dithered);
   } else if (key == 'a') {
     PImage dithered = dither(hsbArray, img.width, img.height, palette, "Atkinson");
+    background(dithered);
+  } else if (key == 'b') {
+    PImage dithered = dither(hsbArray, img.width, img.height, bwPalette, "Atkinson");
     background(dithered);
   } else if (key == 'o') {
     background(img);

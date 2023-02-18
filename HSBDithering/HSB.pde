@@ -109,3 +109,13 @@ PImage makeRGBImage(HSB[] array, int w, int h) {
     
   return rgbImg;
 }
+
+PImage makeRGBImage(float[] array, int w, int h) {
+  PImage rgbImg = createImage(w, h, RGB);
+  
+  for(int i = 0; i < array.length; i++) {
+    rgbImg.pixels[i] = color(array[i]);
+  }
+    
+  return rgbImg;
+}

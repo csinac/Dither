@@ -1,4 +1,4 @@
-HSB[] reducedPalette(HSB[] src, int count) {
+HSB[] reducedHSPalette(HSB[] src, int count) {
   float[][] array = new float[src.length][2];
   int idx = 0;
   
@@ -12,6 +12,23 @@ HSB[] reducedPalette(HSB[] src, int count) {
   HSB[] reduced = new HSB[count];
   for(int i = 0; i < count; i++)
     reduced[i] = new HSB(clusters[i][0], clusters[i][1], 128f);
+  
+  return reduced;
+}
+
+float[] reducedBPalette(HSB[] src, int count) {
+  float[][] array = new float[src.length][1];
+  int idx = 0;
+  
+  for (int i = 0; i < src.length; i++) {
+    array[idx][0] = (float)src[i].b;
+    idx++;
+  }
+
+  float[][] clusters = cluster(array, count, 1);
+  float[] reduced = new float[count];
+  for(int i = 0; i < count; i++)
+    reduced[i] = clusters[i][0];
   
   return reduced;
 }

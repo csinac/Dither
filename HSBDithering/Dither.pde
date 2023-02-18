@@ -16,7 +16,7 @@ PImage dither(HSB[] src, int w, int h, HSB[] palette, String method) {
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
       HSB c = dithered[y * w + x];
-      HSB match = getClosestHS(c, palette);
+      HSB match = getClosest(c, palette);
       float[] error = subtract(c, match);
       
       dithered[y * w + x].copy(match);
@@ -45,7 +45,7 @@ PImage dither(HSB[] src, int w, int h, HSB[] palette, String method) {
   return makeRGBImage(dithered, w, h);
 }
 
-HSB getClosestHS(HSB c, HSB[] palette) {
+HSB getClosest(HSB c, HSB[] palette) {
   int closest = -1;
   float delta = Float.MAX_VALUE;
   
