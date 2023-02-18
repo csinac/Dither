@@ -1,159 +1,95 @@
-PImage kernelDither(PImage src, color[] palette, float[][] kernel, int kernelSize) {
-  PImage dithered = createImage(src.width, src.height, RGB);
-  for(int i = 0; i < src.pixels.length; i++)
-    dithered.pixels[i] = src.pixels[i];
-  
-  for (int y = 0; y < dithered.height; y++) {
-    for (int x = 0; x < dithered.width; x++) {
-      color c = dithered.pixels[y * dithered.width + x];
-      color match = getClosest(c, palette, true);
-      float[] error = subtract(c, match);
-      
-      dithered.pixels[y * dithered.width + x] = match;
-      
-      int kh = kernelSize / 2;
-      for(int i = kh; i < kernelSize; i++) {
-        for(int j = 0; j < kernelSize; j++) {
-          int xx = x + j - kh;
-          int yy = y + i - kh;
+PImage dither(HSB[] src, int w, int h, HSB[] palette, String method) {
+  Kernel kernel = kernelLoader.get(method);
 
-          if(xx >= 0 && yy >= 0 && xx < dithered.width && yy < dithered.height) {
-            color neighbour = dithered.pixels[yy * src.width + xx];
-            float[] ex = multiply(error, kernel[i][j]);
-            dithered.pixels[yy * dithered.width + xx] = add(neighbour, ex);
-          }
-        }
-      }
-    }
-  }
-  
-  return dithered;
-}
-
-PImage floydSteinbergDither(PImage src, color[] palette) {
-  PImage dithered = createImage(src.width, src.height, RGB);
-  for(int i = 0; i < src.pixels.length; i++)
-    dithered.pixels[i] = src.pixels[i];
+  if(w * h != src.length)
+    return null;
     
-  for (int y = 0; y < dithered.height; y++) {
-    for (int x = 0; x < dithered.width; x++) {
-      color c = dithered.pixels[y * src.width + x];
-      color match = getClosest(c, palette, true);
+  if(kernel == null) {
+    println("No dithering kernel found with the name " + method);
+    return null;
+  }
+
+  HSB[] dithered = new HSB[src.length];
+  for(int i = 0; i < src.length; i++)
+    dithered[i] = new HSB(src[i]);
+  
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      HSB c = dithered[y * w + x];
+      HSB match = getClosestHS(c, palette);
       float[] error = subtract(c, match);
       
-      dithered.pixels[y * src.width + x] = match;
+      dithered[y * w + x].copy(match);
 
-      if (!(x == dithered.width - 1)) {
-        color nx = dithered.pixels[x + 1 + y * src.width];
-        float[] ex = multiply(error, 7.0 / 16.0);
+      int sizeHalf = kernel.size / 2;
+      int lenHalf = kernel.size * kernel.size / 2 + 1;
+
+      for(int v = 0; v < kernel.values.length; v++) {
+        int shifted = v + lenHalf;
         
-        dithered.pixels[x + 1 + y * src.width] = add(nx, ex);
+        int i = shifted % kernel.size;
+        int j = (shifted - i) / kernel.size;
+        
+        int xx = x + i - sizeHalf;
+        int yy = y + j - sizeHalf;
 
-        if (!(y == dithered.height - 1)) {
-          nx = dithered.pixels[x + 1 + (y + 1) * src.width];
-          ex = multiply(error, 1.0 / 16.0);
-
-          dithered.pixels[x + 1 + (y + 1) * src.width] = add(nx, ex);
-        }
-      }
-
-      if (!(y == dithered.height - 1))
-      {
-        color nx = dithered.pixels[x + (y + 1) * src.width];
-        float[] ex = multiply(error, 3.0 / 16.0);
-
-        dithered.pixels[x + (y + 1) * src.width] = add(nx, ex);
-
-        if (!(x == 0)) {
-          nx = dithered.pixels[x - 1 + (y + 1) * src.width];
-          ex = multiply(error, 5.0 / 16.0);
-
-          dithered.pixels[x - 1 + (y + 1) * src.width] = add(nx, ex);
+        if(xx >= 0 && yy >= 0 && xx < w && yy < h) {
+          HSB neighbour = dithered[yy * w + xx];
+          float[] ex = multiply(error, kernel.values[v]);
+          dithered[yy * w + xx] = add(neighbour, ex);
         }
       }
     }
   }
   
-  return dithered;
+  return makeRGBImage(dithered, w, h);
 }
 
-
-color getClosest(color c, color[] palette, boolean byteColor) {
+HSB getClosestHS(HSB c, HSB[] palette) {
   int closest = -1;
   float delta = Float.MAX_VALUE;
   
-  for(int i = 0; i < palette.length; i++) {
-    float cr = red(c);
-    float cg = green(c);
-    float cb = blue(c);
+  for(int i = 0; i < palette.length; i++) {    
+    HSB p = palette[i];
     
-    float pr = red(palette[i]);
-    float pg = green(palette[i]);
-    float pb = blue(palette[i]);
+    float dh = (float)(c.h - p.h);
+    float ds = (float)(c.s - p.s);
     
-    float dr = cr - pr;
-    float dg = cg - pg;
-    float db = cb - pb;
-    
-    if(byteColor) {
-      dr /= 255;
-      dg /= 255;
-      db /= 255;
-    }
+    dh /= 255;
+    ds /= 255;
         
-    float distance = pow(dr, 2) + pow(dg, 2) + pow(db, 2);
+    float distance = pow(dh, 2) + pow(ds, 2);
     if(distance < delta) {
       delta = distance;
       closest = i;
-    }
-    
+    }    
   }
   
   return palette[closest];
 }
 
-float[] subtract(color a, color b) {
-    float ar = red(a);
-    float ag = green(a);
-    float ab = blue(a);
-
-    float br = red(b);
-    float bg = green(b);
-    float bb = blue(b);
-    
-    return new float[] { ar - br, ag - bg, ab - bb };
+float[] subtract(HSB a, HSB b) {
+    return new float[] { (float)(a.h - b.h), (float)(a.s - b.s), (float)(a.b - b.b) };
 }
 
-color add(color a, color b) {
-    float ar = red(a);
-    float ag = green(a);
-    float ab = blue(a);
+HSB add(HSB a, HSB b) {
+    float r = max(0, min((float)(a.h + b.h), 255));
+    float g = max(0, min((float)(a.s + b.s), 255));
+    float l = max(0, min((float)(a.b + b.b), 255));
 
-    float br = red(b);
-    float bg = green(b);
-    float bb = blue(b);
-    
-    float r = max(0, min(ar + br, 255));
-    float g = max(0, min(ag + bg, 255));
-    float l = max(0, min(ab + bb, 255));
-
-    return color(r, g, l);
+    return new HSB(r, g, l);
 }
 
-color add(color a, float[] b) {
-    float ar = red(a);
-    float ag = green(a);
-    float ab = blue(a);
-
+HSB add(HSB a, float[] b) {
     float br = b[0];
     float bg = b[1];
     float bb = b[2];
     
-    float r = max(0, min(ar + br, 255));
-    float g = max(0, min(ag + bg, 255));
-    float l = max(0, min(ab + bb, 255));
+    float r = max(0, min((float)a.h + br, 255));
+    float g = max(0, min((float)a.s + bg, 255));
+    float l = max(0, min((float)a.b + bb, 255));
 
-    return color(r, g, l);
+    return new HSB(r, g, l);
 }
 
 float[] multiply(float[] a, float b) {

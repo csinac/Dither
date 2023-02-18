@@ -1,66 +1,3 @@
-PImage reduceColors(PImage src, int n) {
-  PImage reduced = createImage(src.width, src.height, RGB);
-  float[][] rgbArray = new float[src.width * src.height][3];
-  int idx = 0;
-  
-  for (int y = 0; y < src.height; y++) {
-    for (int x = 0; x < src.width; x++) {
-      int c = src.get(x, y);
-      rgbArray[idx][0] = red(c);
-      rgbArray[idx][1] = green(c);
-      rgbArray[idx][2] = blue(c);
-      idx++;
-    }
-  }
-
-  float[][] clusters = cluster(rgbArray, n, 3);
-  for (int y = 0; y < src.height; y++) {
-    for (int x = 0; x < src.width; x++) {
-      int c = img.get(x, y);
-      int r = (int) red(c);
-      int g = (int) green(c);
-      int b = (int) blue(c);
-
-      int index = 0;
-      float minDist = Float.MAX_VALUE;
-      for (int i = 0; i < clusters.length; i++) {
-        float dist = dist(r, g, b, clusters[i][0], clusters[i][1], clusters[i][2]);
-        if (dist < minDist) {
-          index = i;
-          minDist = dist;
-        }
-      }
-
-      reduced.set(x, y, color(clusters[index][0], clusters[index][1], clusters[index][2]));
-    }
-  }
-  
-  return reduced;
-}
-
-color[] reducedPalette(PImage src, int count) {
-  float[][] rgbArray = new float[src.width * src.height][3];
-  int idx = 0;
-  
-  for (int y = 0; y < src.height; y++) {
-    for (int x = 0; x < src.width; x++) {
-      int c = src.get(x, y);
-      rgbArray[idx][0] = red(c);
-      rgbArray[idx][1] = green(c);
-      rgbArray[idx][2] = blue(c);
-      idx++;
-    }
-  }
-
-  float[][] clusters = cluster(rgbArray, count, 3);
-  color[] reduced = new color[count];
-  for(int i = 0; i < count; i++) {
-    reduced[i] = color(clusters[i][0], clusters[i][1], clusters[i][2]);
-  }
-  
-  return reduced;
-}
-
 HSB[] reducedPalette(HSB[] src, int count) {
   float[][] array = new float[src.length][2];
   int idx = 0;
@@ -73,9 +10,8 @@ HSB[] reducedPalette(HSB[] src, int count) {
 
   float[][] clusters = cluster(array, count, 2);
   HSB[] reduced = new HSB[count];
-  for(int i = 0; i < count; i++) {
+  for(int i = 0; i < count; i++)
     reduced[i] = new HSB(clusters[i][0], clusters[i][1], 128f);
-  }
   
   return reduced;
 }

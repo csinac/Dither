@@ -4,6 +4,10 @@ class HSB {
   HSB() {}
   
   HSB(HSB hsb) {
+    copy(hsb);
+  }
+  
+  void copy(HSB hsb) {
     h = hsb.h;
     s = hsb.s;
     b = hsb.b;

@@ -1,37 +1,27 @@
-color[] palette = {
-  color(255, 0, 0),
-  color(255, 255, 255),
-  color(0, 255, 0),
-  color(0, 0, 255),
-  color(255, 255, 0),
-  color(255, 128, 0),
-  color(0, 0, 0)
-};
-
-color[] dominantPalette;
-HSB[] dominantHS;
+HSB[] palette;
 color[] bwPalette;
 PImage img;
 PImage bw;
-PImage rgb;
 HSB[] hsbArray;
 
-int colorCount = 8;
+KernelLoader kernelLoader;
+int hsCount = 16;
 int bwCount = 8;
+
 
 boolean init = true;
 
 void setup() {
+  kernelLoader = new KernelLoader("../shared/kernels.json");
   img = loadImage("../shared/images/kelebekler.jpg");
   hsbArray = getHSBArray(img);
   
   surface.setResizable(true);
   surface.setSize(img.width, img.height);
   
-  dominantPalette = reducedPalette(img, colorCount);
-  dominantHS = reducedPalette(hsbArray, colorCount);
+  palette = reducedPalette(hsbArray, hsCount);
   
-  bw = blackAndWhite(img);
+  bw = makeBW(img);
   bwPalette = new color[bwCount];
   for (int i = 0; i < bwCount; i++)
     bwPalette[i] = color(255f * i / (bwCount - 1));
@@ -46,24 +36,19 @@ void draw() {
 
 void keyPressed() {
   if (key == 'f') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, floydSteinbergKernel, fsSize);
+    PImage dithered = dither(hsbArray, img.width, img.height, palette, "FloydSteinberg");
     background(dithered);
   } else if (key == 's') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, stuckiKernel, sSize);
+    PImage dithered = dither(hsbArray, img.width, img.height, palette, "Stucki");
     background(dithered);
   } else if (key == 'j') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, jarvisJudiceNinkeKernel, jSize);
+    PImage dithered = dither(hsbArray, img.width, img.height, palette, "JarvisJudiceNinke");
     background(dithered);
   } else if (key == 'i') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, sierraKernel, sierraSize);
+    PImage dithered = dither(hsbArray, img.width, img.height, palette, "Sierra");
     background(dithered);
   } else if (key == 'a') {
-    PImage dithered = kernelDither(hsbArray, img.width, img.height, dominantHS, atkinsonKernel, atkinsonSize);
-    background(dithered);
-  } else if (key == ' ') {
-    background(img);
-  } else if (key == 'w') {
-    PImage dithered = kernelDither(bw, bwPalette, atkinsonKernel, atkinsonSize);
+    PImage dithered = dither(hsbArray, img.width, img.height, palette, "Atkinson");
     background(dithered);
   } else if (key == 'o') {
     background(img);
