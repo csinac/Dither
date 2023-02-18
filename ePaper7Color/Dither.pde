@@ -1,6 +1,12 @@
-PImage kernelDither(PImage src, color[] palette, String kernelName) {
-  Kernel kernel = kernelDict.get(kernelName);
+PImage dither(PImage src, color[] palette, String method) {
   PImage dithered = createImage(src.width, src.height, RGB);
+  Kernel kernel = kernelLoader.get(method);
+
+  if(kernel == null) {
+    println("No dithering kernel found with the name " + method);
+    return dithered;
+  }
+  
   for(int i = 0; i < src.pixels.length; i++)
     dithered.pixels[i] = src.pixels[i];
     

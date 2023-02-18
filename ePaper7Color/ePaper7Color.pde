@@ -10,9 +10,10 @@ color[] palette = {
 
 PImage img;
 boolean init = true;
+KernelLoader kernelLoader;
 
 void setup() {
-  loadKernels();
+  kernelLoader = new KernelLoader("../shared/kernels.json");
   img = loadImage("../shared/images/kelebekler.jpg");
 
   surface.setResizable(true);
@@ -28,19 +29,19 @@ void draw() {
 
 void keyPressed() {
   if (key == 'f') {
-    PImage dithered = kernelDither(img, palette, "FloydSteinberg");
+    PImage dithered = dither(img, palette, "FloydSteinberg");
     background(dithered);
   } else if (key == 's') {
-    PImage dithered = kernelDither(img, palette, "Stucki");
+    PImage dithered = dither(img, palette, "Stucki");
     background(dithered);
   } else if (key == 'j') {
-    PImage dithered = kernelDither(img, palette, "JarvisJudiceNinke");
+    PImage dithered = dither(img, palette, "JarvisJudiceNinke");
     background(dithered);
   } else if (key == 'i') {
-    PImage dithered = kernelDither(img, palette, "Sierra");
+    PImage dithered = dither(img, palette, "Sierra");
     background(dithered);
   } else if (key == 'a') {
-    PImage dithered = kernelDither(img, palette, "Atkinson");
+    PImage dithered = dither(img, palette, "Atkinson");
     background(dithered);
   } else if (key == 'o') {
     background(img);

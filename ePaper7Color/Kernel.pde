@@ -1,14 +1,21 @@
 import processing.data.*;
-HashMap<String, Kernel> kernelDict;
 
-void loadKernels() {
-  kernelDict = new HashMap<String, Kernel>();
-  JSONObject data = loadJSONObject("../shared/kernels.json");
-  JSONArray kernels = data.getJSONArray("kernels");
-  for(int i = 0; i < kernels.size(); i++) {
-    JSONObject kernelObject = kernels.getJSONObject(i);
-    String name = kernelObject.getString("name");
-    kernelDict.put(name, new Kernel(kernelObject));
+class KernelLoader {
+  HashMap<String, Kernel> kernelDict;
+
+  public KernelLoader(String path) {
+    kernelDict = new HashMap<String, Kernel>();
+    JSONObject data = loadJSONObject(path);
+    JSONArray kernels = data.getJSONArray("kernels");
+    for(int i = 0; i < kernels.size(); i++) {
+      JSONObject kernelObject = kernels.getJSONObject(i);
+      String name = kernelObject.getString("name");
+      kernelDict.put(name, new Kernel(kernelObject));
+    }
+  }
+  
+  public Kernel get(String name) {
+    return kernelDict.get(name);
   }
 }
 
